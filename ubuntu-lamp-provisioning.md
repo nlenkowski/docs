@@ -1,8 +1,8 @@
-# LAMP Droplet Provisioning
+# Ubuntu LAMP Provisioning
 
 A guide to provisioning a Ubuntu 14.04 Digital Ocean LAMP droplet with Apache, PHP, MySQL, PostFix, Git, Composer, WP-CLI, Symfony Installer and Webmin.
 
-## Droplet Creation
+## Digital Ocean Configuration
 
 1. [Add your public SSH keys](https://www.digitalocean.com/community/articles/how-to-use-ssh-keys-with-digitalocean-droplets) to your account Digital Ocean account
 2. Create a "LAMP on Ubuntu 14.04" application droplet

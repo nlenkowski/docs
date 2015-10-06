@@ -1,4 +1,4 @@
-# Installing and Managing Symfony Applications
+# Installing Symfony Applications
 
 Installing and managing Symfony applications on UNIX-like environments (OS X, Linux, FreeBSD).
 
