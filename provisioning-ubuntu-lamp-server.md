@@ -1,6 +1,6 @@
-# Ubuntu LAMP Provisioning
+# Provisioning a Ubuntu LAMP server on Digital Ocean
 
-A guide to provisioning a Ubuntu 14.04 Digital Ocean LAMP droplet with Apache, PHP, MySQL, PostFix, Git, Composer, WP-CLI, Symfony Installer and Webmin.
+A guide to provisioning a Ubuntu 14.04 Digital Ocean LAMP server with Apache, PHP, MySQL, PostFix, Git, Composer, WP-CLI, Symfony Installer and Webmin.
 
 ## Digital Ocean Configuration
 

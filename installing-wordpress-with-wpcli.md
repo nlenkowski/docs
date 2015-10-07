@@ -1,6 +1,6 @@
 # Installing WordPress with WP-CLI
 
-Installing WP-CLI and WordPress on UNIX-like environments (OS X, Linux, FreeBSD).
+Installing WP-CLI and WordPress on UNIX-like environments (OS X, Linux, FreeBSD, etc).
 
 
 ## Install WP-CLI

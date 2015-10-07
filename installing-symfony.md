@@ -1,6 +1,6 @@
-# Installing Symfony Applications
+# Installing Symfony
 
-Installing and managing Symfony applications on UNIX-like environments (OS X, Linux, FreeBSD).
+Installing and managing Symfony applications on UNIX-like environments (OS X, Linux, FreeBSD, etc).
 
 ## Install Symfony
 

@@ -1,4 +1,4 @@
-# Provisioning OS X for local web development
+# Provisioning OS X for web development
 
 > Updated for OS X 10.11 El Capitan
 
