@@ -195,9 +195,11 @@ sudo apt-get install webmin
 [This shell script](https://github.com/nlenkowski/virtualhost) enables easy management of virtual hosts or [configure your virtual hosts manually](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts).
 
 ```
-git clone git@github.com:nlenkowski/virtualhost.git
+git clone https://github.com/nlenkowski/virtualhost.git && cd virtualhost
 chmod +x virtualhost.sh
 sudo mv virtualhost.sh /usr/local/bin/vhost
+cd ../
+sudo rm -R virtualhost
 ```
 
 #### Install WP-CLI (Optional)
