@@ -47,7 +47,7 @@ ssh-keygen -t rsa -C "myemail@mydomain.com"
 #### Install [Keychain](http://www.funtoo.org/Keychain) to automate ssh-agent
 
 ```
-apt-get install keychain
+sudo apt-get install keychain
 ```
 
 Edit bash config:
@@ -77,11 +77,34 @@ sudo apt-get upgrade
 mysql_secure_installation
 ```
 
-#### Enable Mod Rewrite and Virtual Hosts for Apache
+#### Create a new MySQL user
+```
+mysql -u root -p
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+#### Configure Apache
+
+
+Enable Mod Rewrite and Virtual Hosts:
 
 ```
 sudo a2enmod rewrite
 sudo a2enmod vhost_alias
+```
+
+Fix fully qualified domain warning when starting Apache:
+
+```
+sudo nano /etc/apache2/apache2.conf
+```
+
+Add the line:
+
+```
+ServerName localhost
 ```
 
 #### Configure PHP
@@ -98,18 +121,6 @@ Change lines to:
 date.timezone = America/Chicago   
 upload_max_filesize = 8M   
 post_max_size = 10M   
-```
-
-Edit CLI module config:
-
-```
-sudo nano /etc/php5/apache2/php.ini
-```
-
-Change lines to:
-
-```
-date.timezone = America/Chicago
 ```
 
 #### Install Git
@@ -177,6 +188,8 @@ Update apt and install Webmin
 sudo apt-get update
 sudo apt-get install webmin
 ```
+
+> I highly recommend installing [BWTheme](http://theme.winfuture.it/) to spruce things up a bit.
 
 #### Install virtual host management shell script (Optional)
 [This shell script](https://github.com/nlenkowski/virtualhost) enables easy management of virtual hosts or [configure your virtual hosts manually](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts).
@@ -284,7 +297,7 @@ expose_php = off
 Edit Apache config:
 
 ```
-sudo nano /etc/apache2/apache.conf
+sudo nano /etc/apache2/apache2.conf
 ``` 
 
 Change lines to:   
@@ -358,8 +371,8 @@ sudo umask 0002 /var/www/myproject
 **Add your user to the apache and adm groups**
 
 ```
-sudo usermod -aG www-data bblndev
-sudo usermod -aG adm bblndev
+sudo usermod -aG www-data youruser
+sudo usermod -aG adm youruser
 ```
 
 **To give Apache write access to a directory it should owned by the apache user**
