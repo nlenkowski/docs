@@ -32,7 +32,7 @@ exit
 ssh myusername@mydomain.com
 cd ~
 mkdir .ssh
-sudo cp /root/.ssh/authorized_keys ~/
+sudo cp /root/.ssh/authorized_keys ~/.ssh/
 chmod 700 .ssh
 chmod 600 .ssh/authorized_keys
 ```
