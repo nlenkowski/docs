@@ -33,8 +33,9 @@ ssh myusername@mydomain.com
 cd ~
 mkdir .ssh
 sudo cp /root/.ssh/authorized_keys ~/.ssh/
-chmod 700 .ssh
-chmod 600 .ssh/authorized_keys
+sudo chmod 700 .ssh
+sudo chmod 600 .ssh/authorized_keys
+sudo chown myusername: .ssh/authorized_keys
 ```
 
 #### Create an SSH key pair for your user
