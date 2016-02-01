@@ -349,7 +349,7 @@ sudo chown root:root /var/www
 **Virtual host document roots should be owned by your user and the apache group**
 
 ```
-sudo chown bblndev:www-data /var/www/myproject
+sudo chown myusername:www-data /var/www/myproject
 ```
 
 **Virtual host document roots should be group writable**
@@ -373,8 +373,8 @@ sudo umask 0002 /var/www/myproject
 **Add your user to the apache and adm groups**
 
 ```
-sudo usermod -aG www-data youruser
-sudo usermod -aG adm youruser
+sudo usermod -aG www-data myusername
+sudo usermod -aG adm myusername
 ```
 
 **To give Apache write access to a directory it should owned by the apache user**
