@@ -150,7 +150,7 @@ sudo nano /etc/postfix/main.cf
 Change lines to:
 
 ```
-myhostname = yourdomain.com
+myhostname = mydomain.com
 ```
 Restart PostFix:
 
@@ -159,9 +159,9 @@ sudo service postfix restart
 ```
 
 ## Additional Server Provisioning
-> These utilities make managing the server easier and are in some cases required for the deployment of WordPress and Symfony applications.
+> These utilities are optional, they make managing the server easier and are in some cases required for the deployment of WordPress and Symfony applications.
 
-#### Install Webmin (Optional)
+#### Install Webmin
 
 Edit apt sources:
 
@@ -191,8 +191,8 @@ sudo apt-get install webmin
 
 > I highly recommend installing [BWTheme](http://theme.winfuture.it/) to spruce things up a bit.
 
-#### Install virtual host management shell script (Optional)
-[This shell script](https://github.com/nlenkowski/virtualhost) enables easy management of virtual hosts or [configure your virtual hosts manually](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts).
+#### Install virtualhost shell script
+[This custom shell script](https://github.com/nlenkowski/virtualhost) enables easy management of virtualhosts or [configure your virtual hosts manually](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts).
 
 ```
 git clone https://github.com/nlenkowski/virtualhost.git && cd virtualhost
@@ -202,8 +202,8 @@ cd ../
 sudo rm -R virtualhost
 ```
 
-#### Install WP-CLI (Optional)
-Install [WP-CLI](http://wp-cli.org/) for automating WordPress installations.
+#### Install WP-CLI
+Install [WP-CLI](http://wp-cli.org/) for enabling WordPress installation and management via the command line.
 
 ```
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -211,7 +211,21 @@ chmod +x wp-cli.phar
 sudo mv wp-cli.phar /usr/local/bin/wp
 ```
 
-#### Install PHP intl and curl modules (Symfony Requirement)
+#### Install Composer
+
+```
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+#### Install the Symfony Installer
+
+```
+sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony
+sudo chmod a+x /usr/local/bin/symfony
+```
+
+#### Install PHP intl and curl modules
 
 ```
 sudo apt-get install php5-intl
@@ -219,25 +233,11 @@ sudo apt-get install php5-curl
 sudo service apache2 restart
 ```
 
-#### Enable ACLs in the file system (Symfony Requirement)
+#### Enable ACLs in the file system
 ```
 sudo apt-get install acl
 ```
 Follow the remaining instructions [here](https://help.ubuntu.com/community/FilePermissionsACLs).
-
-#### Install Composer (Symfony Requirement)
-
-```
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-```
-
-#### Install the Symfony Installer (Symfony Requirement)
-
-```
-sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony
-sudo chmod a+x /usr/local/bin/symfony
-```
 
 ## Server Hardening
 
@@ -294,7 +294,7 @@ Change lines to:
 expose_php = off 
 ```
 
-#### Make sure directory listing is disabled in the Apache default host
+#### Make sure directory listing is disabled in the Apache default host and default virtualhost
 
 Edit Apache config:
 
