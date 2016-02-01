@@ -45,7 +45,7 @@ brew doctor
 
 Git comes preinstalled with OS X, however its outdated and doesn't support auto-completion. We'll install a standalone Git with Homebrew.
 
-#### Install Git with Homebrew
+#### Install Git
 
 ```
 brew install git
@@ -235,7 +235,7 @@ sudo apachectl restart
 
 OS X ships with PHP, however using Homebrew to install a standalone PHP makes installing extensions and multiple PHP versions a piece of cake. Here's a nice guide to [switching PHP versions](http://getgrav.org/blog/mac-os-x-apache-setup-multiple-php-versions) on the fly.
 
-#### Install PHP with Homebrew
+#### Install PHP
 
 ```
 brew tap homebrew/dupes
@@ -284,7 +284,7 @@ sudo apachectl restart
 
 ## Install MySQL
 
-#### Install MySQL with Homebrew
+#### Install MySQL
 
 ```
 brew install mysql
@@ -305,7 +305,7 @@ mysql_secure_installation
 
 ## Install PostgreSQL
 
-#### Install PostgreSQL with Homebrew
+#### Install PostgreSQL
 
 ```
 brew install postgresql
@@ -318,34 +318,29 @@ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
 ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
 ```
 
-## Install Ruby and RVM
-Ruby ships with OS X, however its not possible to switch Ruby versions easily and not recommended to mess around with your system Ruby in general. We'll use RVM to manage and install Ruby instead. 
+## Install Ruby and rbenv
+Ruby ships with OS X, however its not possible to switch Ruby versions easily and not recommended to mess around with your system Ruby in general. We'll use rbenv to manage and install Ruby instead. 
 
-> This is [a good guide](http://foffer.dk/install-ruby-on-os-x-10-10-yosemite-using-rvm/) for installing Ruby and RVM on OS X.
+> This is [a good guide](https://gorails.com/setup/osx/10.11-el-capitan) for installing Ruby and rbenv on OS X.
 
-#### Install RVM
-
-```
-\curl -sSL https://get.rvm.io | bash -s stable
-```
-
-#### Enable RVM in the current terminal session
+#### Install rbenv
 
 ```
-source /Users/nathan/.rvm/scripts/rvm
+brew install rbenv ruby-build 
 ```
+
+#### Add rbenv to your path
+
+```
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
+echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+```
+> If you're using ZSH as your shell swap ~/.bash_profile for ~/.zshrc
 
 #### Install Ruby
-
-```
-rvm install ruby
-```
-
-#### Set the default Ruby
-
-```
-rvm --default use ruby-2.1.4
-```
+rbenv install 2.3.0
+rbenv global 2.3.0
+ruby -v
 
 ## Install Node
 
