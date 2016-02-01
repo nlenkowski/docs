@@ -336,6 +336,13 @@ sudo apt-get install -y iptables-persistent
 sudo service iptables-persistent start
 ```
 
+> If you've installed Webmin make sure to add and persist the following rule as well: 
+
+```
+sudo iptables -I INPUT 1 -p tcp --dport 10000 -j ACCEPT
+sudo /etc/init.d/iptables-persistent save
+```
+
 ## Directory Permissions
 
 > Here's the [canonical answer regarding server permissions](http://serverfault.com/questions/357108/what-permissions-should-my-website-files-folders-have-on-a-linux-webserver) on Serverfault. These permission guidelines are gleaned from that answer.
