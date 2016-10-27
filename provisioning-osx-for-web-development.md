@@ -1,6 +1,6 @@
-# Provisioning OS X for web development
+# Provisioning macOS for web development
 
-> Updated for OS X 10.11 El Capitan
+> Updated for macOS 10.12 Sierra
 
 ### A guide to provisioning:
 
@@ -11,19 +11,19 @@
 - PHP
 - MySQL
 - PostgreSQL
-- Node and npm
-- Ruby and RVM
-- Gulp, Bower, WP-CLI, Composer, etc.
+- Node
+- rbenv and Ruby
+- Some useful CLI tools
 
-## Install Prezto
-We've got a lot of work to do in the terminal, so lets make it awesome first.  
+## Prezto
+We've got a lot of work to do in the terminal, so lets make it awesome first.
 
 [Install Prezto](https://github.com/sorin-ionescu/prezto) and [make it sweet](http://mikebuss.com/2014/02/02/a-beautiful-productive-terminal-experience/).
 
-## Install Homebrew
+## Homebrew
 We'll be using [Homebrew](http://brew.sh/) to do our heavy lifting.
 
-#### Install the Xcode Command Line Tools
+#### Install Command Line Tools
 
 ```
 xcode-select --install
@@ -41,9 +41,19 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 brew doctor
 ```
 
-## Install Git
+#### Tap additional formulae repositories and update homebrew
 
-Git comes preinstalled with OS X, however its outdated and doesn't support auto-completion. We'll install a standalone Git with Homebrew.
+```
+brew tap homebrew/dupes
+brew tap homebrew/versions
+brew tap homebrew/homebrew-php
+brew update
+```
+> These repositories facilitate installing duplicate versions of system utilities and PHP.
+
+## Git
+
+Git comes preinstalled on macOS, however its outdated and doesn't support auto-completion. We'll install homebrew Git in its place.
 
 #### Install Git
 
@@ -58,228 +68,215 @@ git config --global user.name "Your Name"
 git config --global user.email "your_email@example.com"
 ```
 
-#### Enable Git over SSH
-
-> The primary advantage of working with Git over SSH (vs HTTPS) is that you'll never have to enter your remote repository credentials while working, its all handled by SSH and your public key.
-
-#### Generate an SSH key for your user
+#### Generate an SSH key pair
 
 ```
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ```
 
-#### Copy your public key
+#### Copy your public key to the clipboard
 
 ```
 pbcopy < ~/.ssh/id_rsa.pub
 ```
 
-#### Add your public key to your Git hosting service accounts
+#### Add your public key to your Github account
 
-Now fire up your web browser and add your public key to your Git hosting accounts (GitHub, BitBucket, etc).
-
-#### Make sure it works
-
-You should be able to clone remote repositories via SSH without being prompted for a password. You can also try connecting to Github via SSH. If the username in the message is yours, you've successfully set up your SSH key.
+[Add your public key](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/) to your Github account and make sure you can connect via SSH.
 
 ```
 ssh -T git@github.com
 ```
 
-## Configure Apache
+## Apache
 
-I've never had the need to upgrade Apache between OS X releases and installing it with Homebrew is somewhat of a pain, so we'll use the Apache installation that ships with OS X instead.
+As of macOS Sierra its no longer possible to build PHP against the system Apache. Additionally, the system Apache configuration is overwritten when upgrading macOS. To avoid these issues we'll use homebrew Apache instead.
 
-> Note that upgrading OS X will overwrite your Apache config, so make sure to create a backup before upgrading.
-
-#### Edit Apache config
-
+#### Disable system Apache
 ```
-sudo nano /etc/apache2/httpd.conf
+sudo apachectl stop
+sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist 2>/dev/null
 ```
 
-#### Change the Apache user and group
+#### Install homebrew Apache
 
 ```
+brew install httpd24 --with-privileged-ports
+```
+
+#### Configure homebrew Apache
+
+```
+sudo nano /usr/local/etc/apache2/2.4/httpd.conf
+```
+
+#### Change the Apache process user and group
+
+Change:
+
+```
+FROM:
+
+User daemon
+Group daemon
+
+TO:
+ 
 User your_user
 Group staff
 ```
 
+> Running Apache as your user is not recommended in production environments for security reasons, however we'll make an exception so file permissions don't give us any trouble on our development box.
+
 #### Change the default directory permissions
 
-From
+Change:
 
 ```
+FROM:
+
 <Directory />
     AllowOverride none
     Require all denied
 </Directory>
-```
 
-To
+TO:
 
-```
 <Directory />
-    Options Indexes MultiViews FollowSymLinks
-    AllowOverride All
+    Options FollowSymLinks
+    AllowOverride all
     Require all granted
 </Directory>
 ```
 
-> Running Apache as your user and loosening default directory permissions is not recommended in production environments, however this being a local development environment we'll make an exception so file permissions never give us any trouble.
+#### Enable deflate, expires and rewrite modules
 
-#### Enable rewrite, virtual hosts and php modules
-
-Uncomment the following lines:
+Uncomment:
 
 ```
-LoadModule rewrite_module libexec/apache2/mod_rewrite.so
-LoadModule php5_module libexec/apache2/libphp5.so
-Include /private/etc/apache2/extra/httpd-vhosts.conf
+LoadModule deflate_module libexec/mod_deflate.so
+LoadModule expires_module libexec/mod_expires.so
+LoadModule rewrite_module libexec/mod_rewrite.so
 ```
 
-#### Edit vhosts config
+Add:
 
 ```
-sudo nano /etc/apache2/extra/httpd-vhosts.conf
+<ifmodule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+</ifmodule>
 ```
 
-#### Add some vhosts
+#### Enable virtual hosts
 
-We'll assume you're webroot is /users/your_user/Sites.
+Uncomment:
+
+```
+Include /usr/local/etc/apache2/2.4/extra/httpd-vhosts.conf
+```
+
+#### Configure virtual hosts
+
+```
+sudo nano /usr/local/etc/apache2/2.4/extra/httpd-vhosts.conf
+```
+
+Add:
 
 ```
 <VirtualHost *:80>
-    DocumentRoot "/users/your_user/Sites"
-</VirtualHost>
-
-<VirtualHost *:80>
-    ServerName mysite.dev
-    DocumentRoot "/users/your_user/Sites/mysite"
+    DocumentRoot "/Users/your_user/Sites"
 </VirtualHost>
 ```
 
-#### Make sure our config checks out and restart apache
+#### Restart apache
 
 ```
-sudo apachectl configtest 
-sudo apachectl restart
+sudo brew services restart httpd24
 ```
 
-## Enable SSL for Apache (Optional)
-If you want to work with secure sites (HTTPS) locally you'll need to configure SSL for Apache.
+You should now be able to view your webroot at [http://localhost](http://localhost)
 
-#### Generate a self-signed certificate:
+> By design non-root applications on macOS can not listen on any port below 1024. The --with-privileged-ports option allows Apache to listen on port 80, however its LaunchDaemon needs to be started as root, hence sudo is required to manage the Apache service. 
+> 
+> Here is [an alternate method](https://goo.gl/otZv5o) of configuring Apache to listen on port 80 by forwarding port 8080 => 80.
 
-```
-sudo mkdir /etc/apache2/ssl
-sudo ssh-keygen -f host.key 
-sudo openssl req -new -key host.key -out request.csr
-sudo openssl x509 -req -days 365 -in request.csr -signkey host.key -out server.crt 
-sudo openssl rsa -in host.key -out host.nopass.key
-```
+## PHP
 
-#### Edit Apache config
-
-```
-sudo nano /etc/apache2/httpd.conf
-```
-
-#### Uncomment the following lines
-
-```
-LoadModule ssl_module libexec/apache2/mod_ssl.so
-LoadModule socache_shmcb_module libexec/apache2/mod_socache_shmcb.so
-Include /private/etc/apache2/extra/httpd-ssl.conf
-```
-
-#### Edit Apache SSL config
-
-```
-sudo nano /etc/apache2/extra/httpd-ssl.conf
-```
-
-#### Update the following lines as necessary
-
-```
-SSLEngine on 
-SSLCertificateFile "/private/etc/apache2/ssl/server.crt"
-SSLCertificateKeyFile "/private/etc/apache2/ssl/host.nopass.key"
-```
-
-#### Edit vhosts config
-
-```
-sudo nano /etc/apache2/httpd-vhosts.conf
-```
-
-#### Add an SSL enabled vhost
-
-```
-<VirtualHost *:443>
-    SSLEngine on
-    SSLCertificateFile "/private/etc/apache2/ssl/server.crt"
-    SSLCertificateKeyFile "/private/etc/apache2/ssl/host.nopass.key"
-    ServerName mysite.dev
-    DocumentRoot "/var/www/mysite"
-</VirtualHost>
-```
-
-#### Make sure our config checks out and restart apache
-```
-sudo apachectl configtest 
-sudo apachectl restart 
-```
-
-## Install PHP
-
-OS X ships with PHP, however using Homebrew to install a standalone PHP makes installing extensions and multiple PHP versions a piece of cake. Here's a nice guide to [switching PHP versions](http://getgrav.org/blog/mac-os-x-apache-setup-multiple-php-versions) on the fly.
+MacOS ships with PHP, however using homebrew PHP makes installing extensions and switching PHP versions a piece of cake.
 
 #### Install PHP
 
 ```
-brew tap homebrew/dupes
-brew tap homebrew/versions
-brew tap homebrew/homebrew-php
-brew install php56
+brew install php70 --with-apache
 ```
 
-#### Edit Apache config
+#### Install optional PHP modules, eg:
 
 ```
-sudo nano /etc/apache2/http.conf
+brew install php70-apcu
+brew install php70-opcache
+brew install php70-imagick
 ```
 
-#### Update the following line to so Apache will load our new standalone PHP
+#### Enable PHP 
+
+Edit Apache config:
 
 ```
-LoadModule php5_module /usr/local/opt/php55/libexec/apache2/libphp5.so
+sudo nano /usr/local/etc/apache2/2.4/httpd.conf
 ```
 
-#### Make sure we're using our standalone PHP on the command line as well
+Add:
 
 ```
-export PATH="$(brew --prefix homebrew/php/php56)/bin:$PATH"
+LoadModule php7_module /usr/local/opt/php70/libexec/apache2/libphp7.so
+```
+
+Add:
+
+```
+<FilesMatch .php$>
+    SetHandler application/x-httpd-php
+</FilesMatch>
+```
+
+Change:
+
+```
+FROM:
+
+DirectoryIndex index.html
+
+TO:
+
+DirectoryIndex index.php index.html
+```
+
+#### Enable homebrew PHP on the CLI
+
+```
+export PATH="$(brew --prefix homebrew/php/php70)/bin:$PATH"
 ```
 
 #### Edit php.ini
 
 ```
-sudo nano /usr/local/etc/php/5.6/php.ini
+sudo nano /usr/local/etc/php/7.0/php.ini
 ```
 
-#### Update your config as appropriate
+Update as appropriate:
 
 ```
 date.timezone = "Europe/London"
-upload_max_filesize = 100M
-post_max_size = 100M
+upload_max_filesize = 64M
+post_max_size = 64M
 ```
 
 #### Restart Apache
 
 ```
-sudo apachectl restart
+sudo brew services restart httpd24
 ```
 
 ## Install MySQL
@@ -290,11 +287,10 @@ sudo apachectl restart
 brew install mysql
 ```
 
-#### Start MySQL now and on boot
+#### Start MySQL
 
 ```
-launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
-ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+brew services start mysql
 ```
 
 #### Secure MySQL
@@ -303,7 +299,7 @@ ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
 mysql_secure_installation
 ```
 
-## Install PostgreSQL
+## PostgreSQL
 
 #### Install PostgreSQL
 
@@ -311,38 +307,47 @@ mysql_secure_installation
 brew install postgresql
 ```
 
-#### Start PostgreSQL now and on boot
+#### Start PostgreSQL
 
 ```
-launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
-ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
+brew services start postgresql
 ```
 
 ## Install Ruby and rbenv
-Ruby ships with OS X, however its not possible to switch Ruby versions easily and not recommended to mess around with your system Ruby in general. We'll use rbenv to manage and install Ruby instead. 
+Ruby ships with macOS, however its not recommended to mess around with your system Ruby. We'll use rbenv to install and manage our Ruby versions instead. 
 
-> This is [a good guide](https://gorails.com/setup/osx/10.11-el-capitan) for installing Ruby and rbenv on OS X.
+> This is [a good guide](https://gorails.com/setup/osx/10.12-sierra) for installing rbenv, Ruby and Rails.
 
 #### Install rbenv
 
 ```
-brew install rbenv ruby-build 
+brew install rbenv
+rbenv init
 ```
 
 #### Add rbenv to your path
 
+If your shell is Bash:
+
 ```
-echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
 echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
 ```
-> If you're using ZSH as your shell swap ~/.bash_profile for ~/.zshrc
+
+If your shell is Zsh:
+
+```
+echo 'eval "$(rbenv init -)"' >> ~/.zshrc
+```
 
 #### Install Ruby
-rbenv install 2.3.0
-rbenv global 2.3.0
-ruby -v
 
-## Install Node
+```
+rbenv install 2.3.1
+rbenv global 2.3.1
+ruby -v
+```
+
+## Node
 
 #### Install Node and npm
 
@@ -350,15 +355,14 @@ ruby -v
 brew install node
 ```
 
-## Install some useful command line tools
+## Some useful CLI tools
 
-#### Install Gulp, Grunt, Bower and Yeoman
+#### Install BrowserSync, Grunt and Gulp
 
 ```
-npm install -g gulp
+npm install -g browser-sync
 npm install -g grunt-cli
-npm install -g bower
-npm install -g yo
+npm install -g gulp
 ```
 
 #### Install WP-CLI
@@ -370,5 +374,7 @@ brew install wp-cli
 #### Install Composer
 
 ```
-brew install composer
+brew install homebrew/php/composer
 ```
+
+
